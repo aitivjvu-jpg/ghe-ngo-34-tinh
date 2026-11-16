@@ -9,7 +9,7 @@ import type { GheView, View } from './dua';
 import { GAME } from './config';
 import { mauTinh } from './tinh';
 import { saoText } from './chang';
-import { VetNuoc } from './ve/Ghe';
+import { GheAnh, VetNuoc } from './ve/Ghe';
 import { NenSong } from './ve/Song';
 
 // tâm 6 làn: nằm gọn trong lòng sông (ảnh nền: bờ mỗi bên 170 px, nước 170-910)
@@ -19,7 +19,6 @@ const TAM = 420; // ghe càng xa càng lùi xuống, tối đa chừng này px (
 // Ghe là ảnh Gemini vẽ (public/assets/ghe/cap0-3.png, đã tách nền): cao theo cấp, ngang = cao × tỉ lệ ảnh
 const CAO_GHE = [250, 275, 295, 315];
 const TI_LE_GHE = 0.29;
-const anhGhe = (cap: number) => `/assets/ghe/cap${Math.min(3, Math.max(0, cap))}.png`;
 
 const vien = (mau: string, d = 4) =>
   ({ textShadow: `0 ${d}px 0 #2a0d18, ${d}px 0 0 #2a0d18, -${d}px 0 0 #2a0d18, 0 -${d}px 0 #2a0d18, ${d}px ${d}px 0 #2a0d18, -${d}px ${d}px 0 #2a0d18, ${d}px -${d}px 0 #2a0d18, -${d}px -${d}px 0 #2a0d18, 0 ${d * 2}px 0 #0006`, color: mau }) as const;
@@ -86,7 +85,7 @@ export function GameStage({ game }: { game: GameState }) {
             {duoi.map((g) => (
               <div key={g.tinh} className="flex flex-col items-center">
                 <div className={g.tangToc ? 'lap-lanh' : ''}>
-                  <img src={anhGhe(g.cap)} width={110 * TI_LE_GHE} height={110} alt="" />
+                  <GheAnh cap={g.cap} w={110 * TI_LE_GHE} h={110} nhip={0.8} nhanh={false} />
                 </div>
                 <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530e6] px-3 text-[22px] font-bold" style={{ borderColor: mauTinh(g.tinh).vien }}>
                   {g.hang}. {g.ten}
@@ -249,14 +248,7 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
       )}
       {/* lượn theo dòng sông: mỗi làn lệch nhịp nhau */}
       <div className="luon" style={{ animationDuration: `${nuocRut || g.tangToc ? 2.2 : 3.4}s`, animationDelay: `${-g.lan * 0.7}s` }}>
-        <img
-          src={anhGhe(g.cap)}
-          width={w}
-          height={h}
-          alt=""
-          className={`nhip-cheo ${g.cap === 2 ? 'sang-hong' : g.cap === 3 ? 'sang-vang' : ''}`}
-          style={{ animationDuration: `${g.tangToc ? 0.45 : nuocRut ? 0.6 : 0.95}s` }}
-        />
+        <GheAnh cap={g.cap} w={w} h={h} nhip={g.tangToc ? 0.45 : nuocRut ? 0.6 : 0.95} nhanh={g.tangToc || nuocRut} />
       </div>
       {g.caChep && (
         <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
