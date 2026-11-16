@@ -126,12 +126,17 @@ export const Ghe = memo(function Ghe({ w, mau, cap, so, nhip = 0.9, boc = 'g' }:
 
 /** Vệt nước sau đuôi ghe. `manh` 0-1: ghe càng nhanh vệt càng dài */
 export function VetNuoc({ w, manh }: { w: number; manh: number }) {
-  const dai = w * (1.2 + manh * 2.4);
+  // bọt nước trắng mờ toả sau đuôi ghe, ghe càng nhanh càng dài
+  const dai = w * (1.4 + manh * 2.2);
   return (
-    <svg width={w * 2.4} height={dai} viewBox="0 0 240 100" preserveAspectRatio="none" style={{ opacity: 0.35 + manh * 0.45 }}>
-      <path d="M120 0 L20 100" stroke="#fff" strokeWidth="6" fill="none" strokeDasharray="14 10" className="vet-nuoc" />
-      <path d="M120 0 L220 100" stroke="#fff" strokeWidth="6" fill="none" strokeDasharray="14 10" className="vet-nuoc" />
-      <path d="M120 0 L120 100" stroke="#fff" strokeWidth="10" opacity="0.4" fill="none" />
-    </svg>
+    <div
+      className="vet-bot"
+      style={{
+        width: w * 1.6,
+        height: dai,
+        opacity: 0.25 + manh * 0.35,
+        background: 'radial-gradient(ellipse 50% 100% at 50% 0%, rgba(255,255,255,0.9), rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 75%)',
+      }}
+    />
   );
 }

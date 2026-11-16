@@ -47,11 +47,21 @@ export const NenSong = memo(function NenSong({ changId, nhanh, songHep }: { chan
         ))}
       </div>
       {/* khúc sông hẹp: bờ lấn vào */}
-      <div className="bo-lan absolute bottom-0 top-0 left-0" style={{ width: songHep ? 195 : 0, background: `linear-gradient(90deg, ${bo} 70%, ${c.bo[0]})` }} />
-      <div className="bo-lan absolute bottom-0 top-0 right-0" style={{ width: songHep ? 195 : 0, background: `linear-gradient(270deg, ${bo} 70%, ${c.bo[0]})` }} />
+      <div className="bo-lan absolute bottom-0 top-0 left-0" style={{ width: songHep ? 195 : 0, background: boLan(bo, c.bo[0], 90) }} />
+      <div className="bo-lan absolute bottom-0 top-0 right-0" style={{ width: songHep ? 195 : 0, background: boLan(bo, c.bo[0], 270) }} />
     </div>
   );
 });
+
+// dải bờ lấn vào lúc Khúc sông hẹp: cỏ lau sọc, mép đất, bóng đổ xuống nước
+function boLan(co: string, dat: string, huong: number) {
+  return [
+    `linear-gradient(${huong}deg, transparent 78%, ${dat} 80%, ${dat} 90%, rgba(0,0,0,0.35) 100%)`,
+    `repeating-linear-gradient(${huong === 90 ? 165 : 15}deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 22px)`,
+    `repeating-linear-gradient(${huong === 90 ? 20 : 160}deg, rgba(0,0,0,0.12) 0 4px, transparent 4px 17px)`,
+    co,
+  ].join(', ');
+}
 
 function Tam({ c }: { c: Chang }) {
   const r = prng(c.id.length * 7919 + c.id.charCodeAt(0) * 31);

@@ -9,14 +9,17 @@ import type { GheView, View } from './dua';
 import { GAME } from './config';
 import { mauTinh } from './tinh';
 import { saoText } from './chang';
-import { Ghe, VetNuoc } from './ve/Ghe';
+import { VetNuoc } from './ve/Ghe';
 import { NenSong } from './ve/Song';
 
 // tâm 6 làn: nằm gọn trong lòng sông (ảnh nền: bờ mỗi bên 170 px, nước 170-910)
 const LAN_X = [232, 355, 478, 601, 724, 847];
-const Y_DAU = 540; // mũi ghe dẫn đầu
+const Y_DAU = 565; // mũi ghe dẫn đầu
 const TAM = 420; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
-const RONG = [48, 54, 60, 66]; // bề ngang ghe theo cấp
+// Ghe là ảnh Gemini vẽ (public/assets/ghe/cap0-3.png, đã tách nền): cao theo cấp, ngang = cao × tỉ lệ ảnh
+const CAO_GHE = [250, 275, 295, 315];
+const TI_LE_GHE = 0.29;
+const anhGhe = (cap: number) => `/assets/ghe/cap${Math.min(3, Math.max(0, cap))}.png`;
 
 const vien = (mau: string, d = 4) =>
   ({ textShadow: `0 ${d}px 0 #2a0d18, ${d}px 0 0 #2a0d18, -${d}px 0 0 #2a0d18, 0 -${d}px 0 #2a0d18, ${d}px ${d}px 0 #2a0d18, -${d}px ${d}px 0 #2a0d18, ${d}px -${d}px 0 #2a0d18, -${d}px -${d}px 0 #2a0d18, 0 ${d * 2}px 0 #0006`, color: mau }) as const;
@@ -83,7 +86,7 @@ export function GameStage({ game }: { game: GameState }) {
             {duoi.map((g) => (
               <div key={g.tinh} className="flex flex-col items-center">
                 <div className={g.tangToc ? 'lap-lanh' : ''}>
-                  <Ghe w={24} mau={mauTinh(g.tinh)} cap={g.cap} so={Math.min(g.so, 6)} boc={`d-${g.tinh}`} nhip={0.8} />
+                  <img src={anhGhe(g.cap)} width={110 * TI_LE_GHE} height={110} alt="" />
                 </div>
                 <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530e6] px-3 text-[22px] font-bold" style={{ borderColor: mauTinh(g.tinh).vien }}>
                   {g.hang}. {g.ten}
@@ -155,7 +158,7 @@ export function GameStage({ game }: { game: GameState }) {
             </div>
           </div>
         )}
-        {v.ticker && (
+        {v.ticker && !v.dauBox && (
           <div key={v.ticker.id} className="tha-xuong max-w-[1000px] truncate rounded-full border-2 border-white/30 bg-[#0b2530ee] px-6 py-1 text-[23px] font-semibold">
             {v.ticker.text}
           </div>
@@ -223,8 +226,8 @@ function yMui(g: GheView, dauM: number) {
 }
 
 function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boolean }) {
-  const w = RONG[g.cap] ?? 62;
-  const h = w * 4.6;
+  const h = CAO_GHE[g.cap] ?? 250;
+  const w = h * TI_LE_GHE;
   const x = LAN_X[g.lan];
   const y = yMui(g, dauM);
   const mau = mauTinh(g.tinh);
@@ -244,7 +247,17 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
           <span className="tang-toc">💨</span>
         </div>
       )}
-      <Ghe w={w} mau={mau} cap={g.cap} so={g.so} nhip={g.tangToc ? 0.45 : nuocRut ? 0.6 : 0.95} boc={g.tinh} />
+      {/* lượn theo dòng sông: mỗi làn lệch nhịp nhau */}
+      <div className="luon" style={{ animationDuration: `${nuocRut || g.tangToc ? 2.2 : 3.4}s`, animationDelay: `${-g.lan * 0.7}s` }}>
+        <img
+          src={anhGhe(g.cap)}
+          width={w}
+          height={h}
+          alt=""
+          className={`nhip-cheo ${g.cap === 2 ? 'sang-hong' : g.cap === 3 ? 'sang-vang' : ''}`}
+          style={{ animationDuration: `${g.tangToc ? 0.45 : nuocRut ? 0.6 : 0.95}s` }}
+        />
+      </div>
       {g.caChep && (
         <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
           <div className="ca-chep-vong mx-auto h-[150px] w-[150px] rounded-full border-[6px] border-dashed border-amber-300" />
@@ -256,12 +269,12 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
       )}
       {/* cờ đuôi + bảng tên */}
       <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: h + 8 }}>
-        <div className="mx-auto w-fit rounded-md px-3 text-[20px] font-extrabold text-[#1a0b10]" style={{ background: mau.vien }}>
-          {g.ngan}
+        <div className="mx-auto w-fit whitespace-nowrap rounded-md px-2 text-[18px] font-extrabold text-[#1a0b10]" style={{ background: mau.vien }}>
+          {g.ngan} · 🛶{g.so}
           {g.sanNha ? ' 🏠' : ''}
         </div>
-        <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530ee] px-2 text-[19px] font-bold" style={{ borderColor: mau.vien }}>
-          {g.hang}. {g.ten} · {g.so}
+        <div className="mt-1 max-w-[124px] truncate whitespace-nowrap rounded-full border-2 bg-[#0b2530ee] px-2 text-[18px] font-bold" style={{ borderColor: mau.vien }}>
+          {g.hang}. {g.ten}
         </div>
       </div>
     </div>
