@@ -5,11 +5,12 @@ if not exist node_modules (
   echo Lan dau chay: dang cai thu vien, doi 1-2 phut...
   call npm install
 )
-rem Giong doc VieNeu (Adam bua): chua chay thi mo cua so rieng. Khong co VieNeu thi game tu dung giong Edge.
+rem Giong doc: mac dinh giong Edge (khong can cai gi). Neu sau nay cai VieNeu-TTS thi bo chu rem o dong "set VIENEU_VOICE" ngay duoi.
+rem set VIENEU_VOICE=Adam bua
 rem Cai VieNeu-TTS o thu muc khac thi sua dong duoi cho dung duong dan.
 set VIENEU_DIR=E:\02_AI\VieNeu-TTS
 curl -s -m 2 http://127.0.0.1:8000/v1/voices >nul 2>&1
-if errorlevel 1 if exist "%VIENEU_DIR%\.venv\Scripts\python.exe" (
+if defined VIENEU_VOICE if errorlevel 1 if exist "%VIENEU_DIR%\.venv\Scripts\python.exe" (
   echo Dang bat giong VieNeu, cua so rieng ten "Giong VieNeu" - dung tat cua so do khi dang live.
   start "Giong VieNeu" /min cmd /c "cd /d %VIENEU_DIR% && set PYTHONIOENCODING=utf-8 && .venv\Scripts\python.exe -m apps.openai_speech"
 )

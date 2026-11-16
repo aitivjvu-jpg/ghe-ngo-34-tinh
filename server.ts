@@ -448,7 +448,24 @@ function splitText(text: string, max = 190): string[] {
   return chunks;
 }
 
-async function edgeTts(text: string, rate: number): Promise<Buffer> {
+// Edge chặn (429) khi nhiều yêu cầu dồn cùng lúc: xếp hàng gọi từng câu một, cách nhau tối thiểu 350 ms
+let edgeHang: Promise<unknown> = Promise.resolve();
+let edgeLanCuoi = 0;
+function edgeTts(text: string, rate: number): Promise<Buffer> {
+  const viec = edgeHang.then(async () => {
+    const cho = edgeLanCuoi + 350 - Date.now();
+    if (cho > 0) await new Promise((r) => setTimeout(r, cho));
+    try {
+      return await edgeTtsMot(text, rate);
+    } finally {
+      edgeLanCuoi = Date.now();
+    }
+  });
+  edgeHang = viec.catch(() => {});
+  return viec;
+}
+
+async function edgeTtsMot(text: string, rate: number): Promise<Buffer> {
   const tts = new MsEdgeTTS();
   try {
     await tts.setMetadata(TTS_VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
@@ -489,7 +506,8 @@ let edgeDaBao = false;
 // Vừa tạo vừa phát nên gần như không phải chờ. VieNeu chưa bật hoặc lỗi thì tự quay về giọng Edge.
 // Đổi giọng: đặt biến VIENEU_VOICE (vd "Thiện Minh"); để trống = chỉ dùng Edge.
 const VIENEU_URL = process.env.VIENEU_URL || 'http://127.0.0.1:8000';
-const VIENEU_VOICE = process.env.VIENEU_VOICE ?? 'Adam bựa';
+// Chủ kênh chưa cài VieNeu (2026-11-16): mặc định để trống = chỉ dùng Edge. Cài rồi thì đặt VIENEU_VOICE=Adam bựa trong BAT-LIVE.bat
+const VIENEU_VOICE = process.env.VIENEU_VOICE ?? '';
 const vieneuCache = new Map<string, Buffer>();
 // VieNeu chưa bật / đang nạp mô hình: lỗi 1 lần thì khỏi gọi lại trong 30 giây (đỡ chờ, đỡ rác log)
 let vieneuNghiDen = 0;

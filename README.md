@@ -11,7 +11,7 @@ Game đua ghe tương tác cho TikTok LIVE. Người xem gõ tên tỉnh để h
 
 Chưa live thì dùng các nút Giả lập trên trang điều khiển (10/60 người gõ tỉnh, thả tim, tặng quà) để xem game chạy.
 
-Giọng bình luận: VieNeu-TTS nếu có (như các game khác), không có thì tự dùng giọng Edge NamMinh.
+Giọng bình luận: giọng Edge NamMinh (không cần cài gì). Edge chặn tạm thì tự dùng giọng Google. Có cài VieNeu-TTS thì bỏ `rem` ở dòng `set VIENEU_VOICE` trong BAT-LIVE.bat.
 
 ## Luật chơi
 
