@@ -91,7 +91,7 @@ body,
 .tim-bay { animation: tim-bay 1.6s ease-out both; }
 @keyframes tim-bay { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-120px); opacity: 0; } }
 
-.sen-roi { top: -80px; animation: sen-roi 4.2s linear infinite; }
+.sen-roi { top: -120px; animation: sen-roi 4.2s linear infinite; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.35)); }
 @keyframes sen-roi { to { transform: translateY(2000px) rotate(220deg); } }
 
 .qua-lon { animation: qua-lon 3.5s ease-out both; }
@@ -168,3 +168,20 @@ body,
 /* Ghe chồm lên mỗi nhịp chèo (cùng nhịp với mái chèo: kéo 0-42%), rồi trôi lùi nhẹ */
 .lao { animation: lao 0.95s cubic-bezier(0.5, 0, 0.5, 1) infinite; }
 @keyframes lao { 0%, 100% { transform: translateY(0); } 42% { transform: translateY(-14px); } }
+
+/* Ảnh hiệu ứng (Gemini vẽ) */
+.ca-chep-boi { animation: ca-chep-boi 1.4s ease-in-out infinite alternate; transform-origin: 50% 80%; margin-left: -60px; }
+@keyframes ca-chep-boi { from { transform: rotate(-12deg) translateY(0); } to { transform: rotate(12deg) translateY(-10px); } }
+.ca-chep-nhay { animation: ca-chep-nhay 1.3s cubic-bezier(0.3, 0, 0.3, 1) both; }
+@keyframes ca-chep-nhay {
+  0% { transform: translateY(120px) scale(0.5) rotate(-20deg); opacity: 0; }
+  40% { transform: translateY(-60px) scale(1.15) rotate(10deg); opacity: 1; }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+}
+.tia-nuoc-no { animation: tia-nuoc-no 1.3s ease-out both; }
+@keyframes tia-nuoc-no { 0% { transform: scale(0.2); opacity: 0; } 30% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+.tia-nuoc-dong { pointer-events: none; animation: tia-nuoc-dong 0.5s ease-out infinite; }
+@keyframes tia-nuoc-dong { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.15); opacity: 0.15; } }
+.vuong-mien { animation: vuong-mien 1.6s ease-in-out infinite alternate; filter: drop-shadow(0 0 18px rgba(255, 215, 80, 0.9)); }
+@keyframes vuong-mien { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-10px) rotate(3deg); } }
+.ca-chep-lac { animation: ca-chep-boi 1.4s ease-in-out infinite alternate; transform-origin: 50% 80%; }

@@ -171,7 +171,8 @@ export function GameStage({ game }: { game: GameState }) {
           <span className="shrink-0 rounded-full bg-amber-300 px-4 py-1 text-[22px] font-extrabold text-[#2a0d18]">BẾN CHỜ</span>
           {v.benCho.map((n) => (
             <span key={n} className="shrink-0 rounded-full border-2 border-teal-300/60 bg-[#0b2530e6] px-4 py-1 text-[22px] font-semibold">
-              ⛵ {n}
+              <img src="/assets/icon/ghe.png" alt="" className="mr-1 inline-block h-[14px] w-[48px] align-middle" />
+              {n}
             </span>
           ))}
         </div>
@@ -187,7 +188,7 @@ export function GameStage({ game }: { game: GameState }) {
 
       {/* thông báo lên ghe */}
       {v.toast && (
-        <div key={v.toast.id} className="toast-vao absolute left-1/2 top-[560px] w-[860px] -translate-x-1/2 rounded-2xl border-[3px] bg-[#0b1d26f2] px-6 py-3 text-center" style={{ borderColor: mauTinh(v.toast.tinh).vien }}>
+        <div key={v.toast.id} className="toast-vao absolute z-30 left-1/2 top-[560px] w-[860px] -translate-x-1/2 rounded-2xl border-[3px] bg-[#0b1d26f2] px-6 py-3 text-center" style={{ borderColor: mauTinh(v.toast.tinh).vien }}>
           <div className="truncate text-[40px] font-extrabold">{v.toast.text} ✓</div>
           <div className="text-[24px] text-white/80">Không cần gõ nữa · THẢ TIM ♥ để chèo</div>
         </div>
@@ -195,7 +196,13 @@ export function GameStage({ game }: { game: GameState }) {
 
       {/* chữ lớn sự kiện */}
       {v.banner && (
-        <div key={v.banner.id} className="banner-vao pointer-events-none absolute inset-x-0 top-[700px] text-center">
+        <div key={v.banner.id} className="banner-vao pointer-events-none absolute inset-x-0 z-30 top-[700px] text-center">
+          {/(CÁ CHÉP|VŨ MÔN)/.test(v.banner.tieuDe) && (
+            <div className="relative mx-auto mb-2 h-[260px] w-[260px]">
+              {/VŨ MÔN/.test(v.banner.tieuDe) && <img src="/assets/hieu-ung/tia-nuoc.webp" alt="" className="tia-nuoc-no absolute inset-0 m-auto w-[300px]" />}
+              <img src="/assets/hieu-ung/ca-chep.webp" alt="" className={`absolute inset-x-0 top-0 mx-auto h-[260px] ${/VŨ MÔN/.test(v.banner.tieuDe) ? 'ca-chep-nhay' : 'ca-chep-lac'}`} />
+            </div>
+          )}
           <div className="px-6 text-[112px] font-extrabold leading-none" style={vien(MAU_BANNER[v.banner.mau], 7)}>{v.banner.tieuDe}</div>
           <div className="mx-auto mt-4 max-w-[980px] text-[36px] font-bold" style={vien('#fff', 3)}>{v.banner.phu}</div>
         </div>
@@ -255,9 +262,11 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
         <VetNuoc w={w} manh={manh} />
       </div>
       {g.tangToc && (
-        <div className="absolute -left-10 top-10 text-[34px] leading-none">
-          <span className="tang-toc">💨</span>
-        </div>
+        <>
+          {/* tăng tốc: nước bắn tung ở đuôi và hai bên mũi */}
+          <img src="/assets/hieu-ung/tia-nuoc.webp" alt="" className="tia-nuoc-dong absolute left-1/2" style={{ width: w * 1.6, top: h - w * 0.9, marginLeft: -w * 0.8 }} />
+          <img src="/assets/hieu-ung/tia-nuoc.webp" alt="" className="tia-nuoc-dong absolute left-1/2" style={{ width: w * 1.1, top: h * 0.05, marginLeft: -w * 0.55, animationDelay: '0.25s' }} />
+        </>
       )}
       {/* lượn theo dòng sông: mỗi làn lệch nhịp nhau */}
       <div className="luon" style={{ animationDuration: `${(nhip * 3.6).toFixed(2)}s`, animationDelay: `${-g.lan * 0.7}s` }}>
@@ -267,9 +276,9 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
         </div>
       </div>
       {g.caChep && (
-        <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
-          <div className="ca-chep-vong mx-auto h-[150px] w-[150px] rounded-full border-[6px] border-dashed border-amber-300" />
-          <div className="absolute left-1/2 top-[38px] -translate-x-1/2 text-[60px]">🐟</div>
+        <div className="absolute z-10 left-1/2 top-[30%] -translate-x-1/2 text-center">
+          <div className="ca-chep-vong mx-auto h-[170px] w-[170px] rounded-full border-[6px] border-dashed border-amber-300 shadow-[0_0_30px_rgba(255,210,80,0.8)]" />
+          <img src="/assets/hieu-ung/ca-chep.webp" alt="" className="ca-chep-boi absolute left-1/2 top-[-20px] h-[210px]" />
           <div className="mt-2 whitespace-nowrap rounded-full bg-amber-400 px-4 text-[22px] font-extrabold text-[#2a0d18]">
             CÁ CHÉP {g.caChep.co}/{g.caChep.can} ♥ · {g.caChep.con}s
           </div>
@@ -278,12 +287,12 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
       {/* cờ đuôi + bảng tên */}
       <div className="absolute z-20 left-1/2 -translate-x-1/2 text-center" style={{ top: h + 8 }}>
         <div className="mx-auto w-fit whitespace-nowrap rounded-md px-2 text-[18px] font-extrabold text-[#1a0b10]" style={{ background: mau.vien }}>
-          {g.ngan} · 🛶{g.so}
-          {g.sanNha ? ' 🏠' : ''}
+          {g.ngan} · <img src="/assets/icon/non.png" alt="" className="inline-block h-[18px] w-[18px] align-[-3px]" /> {g.so}
         </div>
         <div className="mt-1 max-w-[124px] truncate whitespace-nowrap rounded-full border-2 bg-[#0b2530ee] px-2 text-[18px] font-bold" style={{ borderColor: mau.vien }}>
           {g.hang}. {g.ten}
         </div>
+        {g.sanNha && <div className="mx-auto mt-1 w-fit rounded bg-amber-300 px-2 text-[15px] font-extrabold text-[#2a0d18]">SÂN NHÀ</div>}
       </div>
     </div>
   );
@@ -293,9 +302,13 @@ function SenNo() {
   return (
     <div className="pointer-events-none absolute inset-0">
       {Array.from({ length: 14 }, (_, i) => (
-        <div key={i} className="sen-roi absolute text-[54px]" style={{ left: 60 + ((i * 151) % 960), animationDelay: `${(i % 7) * 0.6}s` }}>
-          🪷
-        </div>
+        <img
+          key={i}
+          src="/assets/hieu-ung/sen.png"
+          alt=""
+          className="sen-roi absolute"
+          style={{ left: 60 + ((i * 151) % 960), width: 70 + (i % 3) * 22, animationDelay: `${(i % 7) * 0.6}s` }}
+        />
       ))}
     </div>
   );
@@ -303,8 +316,8 @@ function SenNo() {
 
 function QuaLon({ q }: { q: NonNullable<View['quaLon']> }) {
   return (
-    <div key={q.id} className="qua-lon pointer-events-none absolute inset-x-0 top-[1080px] text-center">
-      <div className="text-[200px] leading-none">💐</div>
+    <div key={q.id} className="qua-lon pointer-events-none absolute inset-x-0 z-30 top-[1080px] text-center">
+      <img src="/assets/hieu-ung/bo-hoa.webp" alt="" className="mx-auto h-[320px]" />
       <div className="mt-2 text-[40px] font-extrabold" style={vien('#ffd54a', 3)}>
         {q.name} tặng {q.gift}
         {q.count > 1 ? ` ×${q.count}` : ''}
@@ -315,18 +328,26 @@ function QuaLon({ q }: { q: NonNullable<View['quaLon']> }) {
 
 function ManChuyen({ v }: { v: View }) {
   return (
-    <div className="boc-vao absolute inset-0 flex flex-col items-center justify-center bg-[#071a1fb8]">
+    <div className="boc-vao absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#071a1fb8]">
       <div className="text-[34px] font-bold tracking-[0.3em] text-teal-200">VÒNG {v.vong} · CHẶNG ĐUA</div>
       <div className="mt-4 px-10 text-center text-[100px] font-extrabold leading-tight" style={vien('#fff', 6)}>{v.chang.ten.toUpperCase()}</div>
       <div className="mt-4 text-[54px] text-amber-300">{saoText(v.chang.sao)}</div>
-      <div className="mt-4 rounded-full bg-amber-400 px-8 py-2 text-[32px] font-extrabold text-[#2a0d18]">🏠 Sân nhà {v.chang.nha} · chèo nhanh hơn 10%</div>
+      <div className="mt-4 rounded-full bg-amber-400 px-8 py-2 text-[32px] font-extrabold text-[#2a0d18]">Sân nhà {v.chang.nha} · chèo nhanh hơn 10%</div>
       <div className="mt-10 text-[64px] font-extrabold" style={vien('#ff6fb5', 4)}>{v.con > 0 ? v.con : 'CHÈO!'}</div>
     </div>
   );
 }
 
+// Bảng gỗ chạm rồng (Gemini vẽ) làm khung cho kết quả và chọn sông; chữ nằm trong mặt gỗ
 function Khung({ children }: { children: React.ReactNode }) {
-  return <div className="boc-vao absolute inset-x-10 top-[380px] rounded-[36px] border-[3px] border-white/20 bg-[#0b1d26f4] px-10 py-10 text-center shadow-2xl">{children}</div>;
+  return (
+    <div className="boc-vao absolute z-30 left-[60px] top-[300px] w-[960px]" style={{ height: 960 * 1.351 }}>
+      <img src="/assets/hieu-ung/bang-go.webp" alt="" className="absolute inset-0 h-full w-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]" />
+      <div className="absolute flex flex-col items-center justify-center text-center" style={{ left: '12%', right: '12%', top: '13%', bottom: '10%' }}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 function KetQua({ v }: { v: View }) {
@@ -337,7 +358,7 @@ function KetQua({ v }: { v: View }) {
       <div className="text-[34px] font-extrabold tracking-wider text-emerald-300">KẾT QUẢ VÒNG {v.vong}</div>
       {nhat ? (
         <>
-          <div className="mt-2 text-[70px]">👑</div>
+          <img src="/assets/hieu-ung/vuong-mien.png" alt="" className="vuong-mien mx-auto mt-2 h-[120px]" />
           <div className="text-[110px] font-extrabold leading-none" style={vien('#ffd54a', 6)}>{nhat.ten.toUpperCase()}</div>
           <div className="mt-3 text-[32px] font-bold text-amber-200">
             {k.lienTiep >= 2 ? `Vua sông nước · thắng ${k.lienTiep} vòng liền` : `Về nhất chặng ${v.chang.ten}`}
@@ -367,14 +388,14 @@ function KetQua({ v }: { v: View }) {
 function SacPhong({ v }: { v: View }) {
   const s = v.sacPhong!;
   return (
-    <div className="boc-vao absolute inset-x-16 top-[400px]">
-      <div className="mx-auto h-6 w-[96%] rounded-full bg-[#7a4b1a]" />
-      <div className="relative -my-2 border-[10px] border-double border-[#b3261e] bg-[#f6e7c1] px-10 py-10 text-center text-[#3b1d0a] shadow-2xl">
-        <div className="text-[76px] font-extrabold text-[#b3261e]">SẮC PHONG</div>
-        <div className="text-[30px] font-semibold">Tay chèo xuất sắc nhất vòng</div>
-        <div className="mt-4 flex items-center justify-center gap-4">
+    <div className="boc-vao absolute z-30 left-[20px] top-[420px] w-[1040px]" style={{ height: 1040 * 0.691 }}>
+      <img src="/assets/hieu-ung/sac-phong.webp" alt="" className="absolute inset-0 h-full w-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]" />
+      <div className="absolute text-center text-[#3b1d0a]" style={{ left: '15%', right: '15%', top: '15%', bottom: '14%' }}>
+        <div className="text-[66px] font-extrabold leading-tight text-[#b3261e]">SẮC PHONG</div>
+        <div className="text-[28px] font-semibold">Tay chèo xuất sắc nhất vòng</div>
+        <div className="mt-2 flex items-center justify-center gap-4">
           {s.avatar && <img src={s.avatar} className="h-24 w-24 rounded-full border-4 border-[#b3261e]" alt="" />}
-          <div className="max-w-[640px] truncate text-[88px] font-extrabold text-[#7a1010]">{s.name}</div>
+          <div className="max-w-[560px] truncate text-[76px] font-extrabold text-[#7a1010]">{s.name}</div>
         </div>
         <div className="mt-2 text-[34px]">
           danh hiệu <b>{s.danhHieu}</b>
@@ -387,13 +408,12 @@ function SacPhong({ v }: { v: View }) {
             {s.top.slice(1).map((t, i) => `${i + 2}. ${t.name} (${t.tinh}) ${t.nhip}`).join('   ·   ')}
           </div>
         )}
-        <div className="absolute bottom-6 right-8 rotate-[-8deg] rounded border-4 border-[#b3261e] px-3 py-1 text-[26px] font-extrabold leading-tight text-[#b3261e]">
+        <div className="absolute bottom-0 right-0 rotate-[-8deg] rounded border-4 border-[#b3261e] px-3 py-1 text-[26px] font-extrabold leading-tight text-[#b3261e]">
           ĐUA
           <br />
           GHE
         </div>
       </div>
-      <div className="mx-auto h-6 w-[96%] rounded-full bg-[#7a4b1a]" />
     </div>
   );
 }
@@ -402,7 +422,7 @@ function ChonSong({ v }: { v: View }) {
   const c = v.chonSong!;
   return (
     <Khung>
-      <div className="text-[64px] font-extrabold" style={vien('#ffd54a', 4)}>CHỌN SÔNG VÒNG SAU</div>
+      <div className="text-[54px] font-extrabold leading-tight" style={vien("#ffd54a", 4)}>CHỌN SÔNG VÒNG SAU</div>
       <div className="mt-2 text-[28px] text-white/80">Gõ tên sông để chọn · khóa sau {c.con} giây</div>
       <div className="mt-8 space-y-5">
         {c.ds.map((d) => (
@@ -413,7 +433,7 @@ function ChonSong({ v }: { v: View }) {
                 {d.mo} · gõ “{d.goi}”
               </div>
             </div>
-            <div className="text-[48px] font-extrabold text-amber-300">{d.phieu} LƯỢT</div>
+            <div className="whitespace-nowrap text-[40px] font-extrabold text-amber-300">{d.phieu} LƯỢT</div>
           </div>
         ))}
       </div>
