@@ -14,11 +14,12 @@ import { NenSong } from './ve/Song';
 
 // tâm 6 làn: nằm gọn trong lòng sông (ảnh nền: bờ mỗi bên 170 px, nước 170-910)
 const LAN_X = [232, 355, 478, 601, 724, 847];
-const Y_DAU = 565; // mũi ghe dẫn đầu
-const TAM = 420; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
+const Y_DAU = 520; // mũi ghe dẫn đầu
+const TAM = 190; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
 // Ghe là ảnh Gemini vẽ (public/assets/ghe/cap0-3.png, đã tách nền): cao theo cấp, ngang = cao × tỉ lệ ảnh
-const CAO_GHE = [250, 275, 295, 315];
-const TI_LE_GHE = 0.29;
+// to như game gốc: ghe rồng ~1/4 chiều cao màn hình, Rồng Vàng ~30%
+const CAO_GHE = [470, 510, 540, 600];
+const TI_LE_GHE = 0.39; // ảnh gốc 0.29, nới ngang 1,35 lần cho ghe mập như game gốc
 
 const vien = (mau: string, d = 4) =>
   ({ textShadow: `0 ${d}px 0 #2a0d18, ${d}px 0 0 #2a0d18, -${d}px 0 0 #2a0d18, 0 -${d}px 0 #2a0d18, ${d}px ${d}px 0 #2a0d18, -${d}px ${d}px 0 #2a0d18, ${d}px -${d}px 0 #2a0d18, -${d}px -${d}px 0 #2a0d18, 0 ${d * 2}px 0 #0006`, color: mau }) as const;
@@ -85,7 +86,7 @@ export function GameStage({ game }: { game: GameState }) {
             {duoi.map((g) => (
               <div key={g.tinh} className="flex flex-col items-center">
                 <div className={g.tangToc ? 'lap-lanh' : ''}>
-                  <GheAnh cap={g.cap} w={110 * TI_LE_GHE} h={110} nhip={0.8} nhanh={false} />
+                  <GheAnh cap={g.cap} w={130 * TI_LE_GHE} h={130} nhip={0.8} nhanh={false} />
                 </div>
                 <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530e6] px-3 text-[22px] font-bold" style={{ borderColor: mauTinh(g.tinh).vien }}>
                   {g.hang}. {g.ten}
@@ -219,7 +220,7 @@ export function GameStage({ game }: { game: GameState }) {
 
 const MAU_BANNER = { vang: '#ffd54a', hong: '#ff6fb5', xanh: '#7ef0d8', trang: '#f4f4f4', do: '#ff5a4f' } as const;
 
-// Cách ghe đầu 50 m lùi ~100 px, 200 m lùi ~280 px, xa hơn nữa thì dồn sát đáy đường đua
+// Các ghe đi sát thành đoàn như game gốc: cách 50 m lùi ~45 px, 200 m lùi ~125 px, xa nữa tối đa ~190 px (nhãn vẫn ghi đúng số mét)
 function yMui(g: GheView, dauM: number) {
   return Y_DAU + TAM * (1 - Math.exp(-(dauM - g.m) / 180));
 }
@@ -234,7 +235,7 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
   return (
     <div className="absolute" style={{ left: x - w / 2, top: y, width: w, transition: 'top 0.3s linear' }}>
       {/* nhãn mét trên mũi */}
-      <div className="absolute -top-[46px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0b2530dd] px-3 text-[22px] font-extrabold">
+      <div className="absolute z-20 -top-[46px] left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#0b2530dd] px-3 text-[22px] font-extrabold">
         {g.hang === 1 || Math.round(dauM - g.m) === 0 ? `${Math.round(g.m)} m` : `-${Math.round(dauM - g.m)} m`}
       </div>
       {g.sucRong && <div className="suc-rong absolute -inset-x-6 -inset-y-4 rounded-full" />}
@@ -260,7 +261,7 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
         </div>
       )}
       {/* cờ đuôi + bảng tên */}
-      <div className="absolute left-1/2 -translate-x-1/2 text-center" style={{ top: h + 8 }}>
+      <div className="absolute z-20 left-1/2 -translate-x-1/2 text-center" style={{ top: h + 8 }}>
         <div className="mx-auto w-fit whitespace-nowrap rounded-md px-2 text-[18px] font-extrabold text-[#1a0b10]" style={{ background: mau.vien }}>
           {g.ngan} · 🛶{g.so}
           {g.sanNha ? ' 🏠' : ''}

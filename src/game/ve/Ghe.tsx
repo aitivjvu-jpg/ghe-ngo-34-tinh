@@ -163,7 +163,7 @@ export const GheAnh = memo(function GheAnh({ cap, w, h, nhip, nhanh }: { cap: nu
     <div className="relative" style={{ width: w, height: h }}>
       {/* sóng mũi ghe */}
       <div className="song-mui" style={{ width: w * 1.3, height: h * 0.16, left: -w * 0.15, top: h * 0.02, animationDuration: nhipS }} />
-      <svg className="absolute inset-0 overflow-visible" width={w} height={h} viewBox={`0 0 ${VB_W} ${VB_H}`}>
+      <svg className="absolute inset-0 overflow-visible" width={w} height={h} viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="none">
         {HANG_CHEO.map((t, i) => {
           const y = t * VB_H;
           return (
@@ -183,7 +183,12 @@ export const GheAnh = memo(function GheAnh({ cap, w, h, nhip, nhanh }: { cap: nu
           );
         })}
       </svg>
-      <img src={`/assets/ghe/cap${c}.png`} width={w} height={h} alt="" className={`relative block ${c === 2 ? 'sang-hong' : c === 3 ? 'sang-vang' : ''}`} />
+      <img
+        src={`/assets/ghe/cap${c}.png`}
+        alt=""
+        className={`relative block ${c === 2 ? 'sang-hong' : c === 3 ? 'sang-vang' : ''}`}
+        style={{ width: w, height: h, maxWidth: 'none' }}
+      />
       {/* ánh kim lấp lánh */}
       {LAP_LANH.slice(0, soSang).map(([x, y], i) => (
         <span key={i} className="lap-lanh-sao" style={{ left: x * w, top: y * h, animationDelay: `${(i * 0.37) % 1.6}s` }}>
