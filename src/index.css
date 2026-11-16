@@ -164,3 +164,7 @@ body,
   animation: bot-man 0.35s linear infinite; opacity: 0.8;
 }
 @keyframes bot-man { from { background-position-y: 0; } to { background-position-y: 18px; } }
+
+/* Ghe chồm lên mỗi nhịp chèo (cùng nhịp với mái chèo: kéo 0-42%), rồi trôi lùi nhẹ */
+.lao { animation: lao 0.95s cubic-bezier(0.5, 0, 0.5, 1) infinite; }
+@keyframes lao { 0%, 100% { transform: translateY(0); } 42% { transform: translateY(-14px); } }

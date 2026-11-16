@@ -30,6 +30,8 @@ interface Ghe {
   sucRongDen: number;
   hoatDong: number; // lần cuối có người lên / chèo / tặng
   nhipVong: number;
+  toc: number; // tốc độ hiện tại (m/giây, làm mượt ~2,5 giây): để vẽ ghe nhanh / ghe chậm
+  mTruoc: number;
 }
 
 type SuKien =
@@ -76,6 +78,8 @@ export interface GheView {
   cap: number;
   so: number;
   lan: number; // 0-5 trên đường đua chính, -1 = đoàn đang đuổi
+  toc: number; // m/giây hiện tại
+  tocTB: number; // tốc độ trung bình các ghe đang đua
   tangToc: boolean;
   sucRong: boolean;
   sanNha: boolean;
@@ -207,7 +211,8 @@ export class DuaGhe {
       // ghe mới hạ thủy giữa vòng: xuất phát ngang ghe cuối đoàn
       const dangDua = this.dangDua(now);
       const cuoi = dangDua.length ? Math.min(...dangDua.map((x) => x.m)) : 0;
-      g = { tinh: p.tinh, m: this.phase === 'dua' ? cuoi : 0, nguoi: 0, cap: 0, tangTocDen: 0, sucRongDen: 0, hoatDong: now, nhipVong: 0 };
+      const m0 = this.phase === 'dua' ? cuoi : 0;
+      g = { tinh: p.tinh, m: m0, nguoi: 0, cap: 0, tangTocDen: 0, sucRongDen: 0, hoatDong: now, nhipVong: 0, toc: 0, mTruoc: m0 };
       this.ghe.set(p.tinh, g);
     }
     g.nguoi++;
@@ -280,6 +285,12 @@ export class DuaGhe {
     this.lamMoiHang(now);
 
     if (this.phase === 'dua') this.chayDua(dt, now);
+    if (dt > 0)
+      for (const g of this.ghe.values()) {
+        const tuc = this.phase === 'dua' ? Math.max(0, g.m - g.mTruoc) / dt : 0;
+        g.toc += (tuc - g.toc) * Math.min(1, dt / 2.5);
+        g.mTruoc = g.m;
+      }
     if (now >= this.endsAt) this.sang(now);
 
     // màn hình: banner, toast, ticker
@@ -340,6 +351,7 @@ export class DuaGhe {
           const truoc = i > 0 ? xep[i - 1] : null;
           const nhay = Math.min(GAME.vuMonToiDa, Math.max(30, truoc ? truoc.m - g.m + 12 : 30));
           g.m += nhay;
+          g.mTruoc += nhay * 0.7; // vẫn trông lao nhanh nhưng không vọt quá đà
           this.phat({ tieuDe: 'VƯỢT VŨ MÔN!', phu: `ghe ${tenTinh(g.tinh)} lao lên`, mau: 'vang' });
           this.evs.push({ t: 'vuMon', tinh: tenTinh(g.tinh) });
         }
@@ -465,6 +477,8 @@ export class DuaGhe {
     this.sacPhong = null;
     for (const g of this.ghe.values()) {
       g.m = 0;
+      g.mTruoc = 0;
+      g.toc = 0;
       g.nhipVong = 0;
       g.tangTocDen = 0;
       g.sucRongDen = 0;
@@ -608,6 +622,7 @@ export class DuaGhe {
       : this.phase === 'sacPhong' ? con + GAME.chonSongSec
       : con;
     const nuocRut = this.phase === 'dua' && con <= GAME.nuocRutSec;
+    const tocTB = xep.length ? Math.round((xep.reduce((t, g) => t + g.toc, 0) / xep.length) * 10) / 10 : 0;
     const ghe: GheView[] = xep.map((g, i) => {
       const ck = this.suKien.find((s) => s.loai === 'caChep' && s.tinh === g.tinh) as Extract<SuKien, { loai: 'caChep' }> | undefined;
       return {
@@ -619,6 +634,8 @@ export class DuaGhe {
         cap: g.cap,
         so: g.nguoi,
         lan: this.lan.get(g.tinh) ?? -1,
+        toc: Math.round(g.toc * 10) / 10,
+        tocTB,
         tangToc: g.tangTocDen > now,
         sucRong: g.sucRongDen > now,
         sanNha: g.tinh === this.chang.nha,

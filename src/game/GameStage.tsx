@@ -14,8 +14,8 @@ import { NenSong } from './ve/Song';
 
 // tâm 6 làn: nằm gọn trong lòng sông (ảnh nền: bờ mỗi bên 170 px, nước 170-910)
 const LAN_X = [232, 355, 478, 601, 724, 847];
-const Y_DAU = 520; // mũi ghe dẫn đầu
-const TAM = 190; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
+const Y_DAU = 505; // mũi ghe dẫn đầu
+const TAM = 260; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
 // Ghe là ảnh Gemini vẽ (public/assets/ghe/cap0-3.png, đã tách nền): cao theo cấp, ngang = cao × tỉ lệ ảnh
 // to như game gốc: ghe rồng ~1/4 chiều cao màn hình, Rồng Vàng ~30%
 const CAO_GHE = [470, 510, 540, 600];
@@ -220,9 +220,20 @@ export function GameStage({ game }: { game: GameState }) {
 
 const MAU_BANNER = { vang: '#ffd54a', hong: '#ff6fb5', xanh: '#7ef0d8', trang: '#f4f4f4', do: '#ff5a4f' } as const;
 
-// Các ghe đi sát thành đoàn như game gốc: cách 50 m lùi ~45 px, 200 m lùi ~125 px, xa nữa tối đa ~190 px (nhãn vẫn ghi đúng số mét)
+// Các ghe đi sát thành đoàn như game gốc: cách 50 m lùi ~45 px, 200 m lùi ~140 px, xa nữa tối đa ~260 px
+// (nhãn vẫn ghi đúng số mét). Cộng thêm độ "chồm": ghe đang chèo nhanh hơn trung bình nhô lên trước,
+// ghe chậm tụt lại, để người xem thấy rõ ghe nào đang được thả tim.
 function yMui(g: GheView, dauM: number) {
-  return Y_DAU + TAM * (1 - Math.exp(-(dauM - g.m) / 180));
+  const lui = TAM * (1 - Math.exp(-(dauM - g.m) / 260));
+  const chom = Math.max(-50, Math.min(50, (g.toc - g.tocTB) * 7));
+  return Y_DAU + lui - chom;
+}
+
+// nhịp chèo theo tốc độ thật của ghe: ghe được thả tim dồn dập chèo nhanh, ghe ít tim chèo thong thả
+function nhipCua(g: GheView, nuocRut: boolean) {
+  const n = 1.15 - g.toc * 0.06 - (nuocRut ? 0.15 : 0);
+  // làm tròn 0,1 giây: đổi thời lượng hoạt ảnh liên tục làm mái chèo giật
+  return Math.round(Math.max(g.tangToc ? 0.4 : 0.42, Math.min(g.tangToc ? 0.5 : 1.15, n)) * 10) / 10;
 }
 
 function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boolean }) {
@@ -231,7 +242,8 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
   const x = LAN_X[g.lan];
   const y = yMui(g, dauM);
   const mau = mauTinh(g.tinh);
-  const manh = g.tangToc ? 1 : nuocRut ? 0.6 : 0.3;
+  const nhip = nhipCua(g, nuocRut);
+  const manh = Math.min(1, 0.2 + g.toc / 12 + (g.tangToc ? 0.4 : 0));
   return (
     <div className="absolute" style={{ left: x - w / 2, top: y, width: w, transition: 'top 0.3s linear' }}>
       {/* nhãn mét trên mũi */}
@@ -248,8 +260,11 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
         </div>
       )}
       {/* lượn theo dòng sông: mỗi làn lệch nhịp nhau */}
-      <div className="luon" style={{ animationDuration: `${nuocRut || g.tangToc ? 2.2 : 3.4}s`, animationDelay: `${-g.lan * 0.7}s` }}>
-        <GheAnh cap={g.cap} w={w} h={h} nhip={g.tangToc ? 0.45 : nuocRut ? 0.6 : 0.95} nhanh={g.tangToc || nuocRut} />
+      <div className="luon" style={{ animationDuration: `${(nhip * 3.6).toFixed(2)}s`, animationDelay: `${-g.lan * 0.7}s` }}>
+        {/* chồm lên theo từng nhịp chèo */}
+        <div className="lao" style={{ animationDuration: `${nhip}s` }}>
+          <GheAnh cap={g.cap} w={w} h={h} nhip={nhip} nhanh={g.tangToc || g.toc > g.tocTB + 3} />
+        </div>
       </div>
       {g.caChep && (
         <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
