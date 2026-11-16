@@ -1,15 +1,17 @@
 /**
  * Mặt sông + cảnh 2 bên bờ theo từng chặng, vẽ bằng SVG. Một "tấm" cao 960 px lặp 2 lần và trôi xuống
  * (ghe trông như đang lao lên). Nước rút thì trôi nhanh hơn. Khúc sông hẹp: 2 dải bờ lấn vào giữa.
- * Muốn dùng ảnh tự vẽ: bỏ ảnh 1080x960 (nối được đầu-đuôi) vào public/assets/song/<id chặng>.jpg,
- * đổi COANH = true bên dưới.
+ * Có ảnh public/assets/song/<id chặng>.jpg (1080x960) thì dùng ảnh: các tấm lật ngược xen kẽ
+ * (thường, lật, thường, lật) nên chỗ nối luôn khớp, không lộ đường cắt. Chưa có ảnh thì vẽ bằng SVG.
+ * Ảnh hiện tại do Gemini vẽ (16/11/2026), đã xoá dấu ngôi sao góc phải dưới.
  */
 import { memo, type ReactNode } from 'react';
 import { CHANG_BY_ID, type Chang } from '../chang';
 
 const W = 1080;
 const T = 960; // chiều cao 1 tấm
-const COANH = false;
+// chặng nào đã có ảnh trong public/assets/song/
+const CO_ANH = new Set(['cai-rang', 'thap-muoi', 'tra-su', 'co-chien', 'dat-mui', 'trang-an', 'song-huong', 'song-han', 'ha-long', 'song-sai-gon']);
 
 // số ngẫu nhiên cố định theo hạt giống: cảnh không nhảy lung tung mỗi lần vẽ lại
 function prng(seed: number) {
@@ -22,14 +24,27 @@ function prng(seed: number) {
 
 export const NenSong = memo(function NenSong({ changId, nhanh, songHep }: { changId: string; nhanh: boolean; songHep: boolean }) {
   const c = CHANG_BY_ID.get(changId)!;
-  const tam = COANH ? <img src={`/assets/song/${c.id}.jpg`} width={W} height={T} alt="" /> : <Tam c={c} />;
+  const anh = CO_ANH.has(c.id);
   const bo = c.kieu === 'vinh' ? '#2f5a4a' : c.bo[1];
+  // ảnh: 4 tấm thường/lật, trôi 2 tấm mỗi vòng lặp; SVG: 3 tấm giống nhau, trôi 1 tấm
+  const so = anh ? 4 : 3;
+  const tam = (i: number) =>
+    anh ? (
+      <img src={`/assets/song/${c.id}.jpg`} width={W} height={T} alt="" style={{ display: 'block', transform: i % 2 ? 'scaleY(-1)' : undefined }} />
+    ) : (
+      <Tam c={c} />
+    );
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ background: c.nuoc[1] }}>
-      <div className="song-chay absolute left-0 top-0" style={{ width: W, height: T * 3, animationDuration: nhanh ? '3.2s' : '7s' }}>
-        <div style={{ height: T }}>{tam}</div>
-        <div style={{ height: T }}>{tam}</div>
-        <div style={{ height: T }}>{tam}</div>
+      <div
+        className={`${anh ? 'song-chay-anh' : 'song-chay'} absolute left-0 top-0`}
+        style={{ width: W, height: T * so, animationDuration: anh ? (nhanh ? '6.4s' : '14s') : nhanh ? '3.2s' : '7s' }}
+      >
+        {Array.from({ length: so }, (_, i) => (
+          <div key={i} style={{ height: T }}>
+            {tam(i)}
+          </div>
+        ))}
       </div>
       {/* khúc sông hẹp: bờ lấn vào */}
       <div className="bo-lan absolute bottom-0 top-0 left-0" style={{ width: songHep ? 250 : 0, background: `linear-gradient(90deg, ${bo} 70%, ${c.bo[0]})` }} />

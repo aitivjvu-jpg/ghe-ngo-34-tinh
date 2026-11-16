@@ -23,6 +23,13 @@ body,
   from { transform: translateY(-960px); }
   to { transform: translateY(0); }
 }
+.song-chay-anh {
+  animation: song-chay-anh 14s linear infinite;
+}
+@keyframes song-chay-anh {
+  from { transform: translateY(-1920px); }
+  to { transform: translateY(0); }
+}
 .bo-lan { transition: width 1.2s ease-in-out; }
 
 /* Mái chèo: trái và phải quạt ngược nhau */
