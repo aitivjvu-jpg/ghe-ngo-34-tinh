@@ -483,13 +483,19 @@ async function googleTts(text: string): Promise<Buffer> {
 }
 
 const ttsCache = new Map<string, Buffer>();
+let edgeNghiDen = 0;
+let edgeDaBao = false;
 // Giọng VieNeu (E:\02_AI\VieNeu-TTS chạy server ở cổng 8000, card đồ hoạ tạo giọng).
 // Vừa tạo vừa phát nên gần như không phải chờ. VieNeu chưa bật hoặc lỗi thì tự quay về giọng Edge.
 // Đổi giọng: đặt biến VIENEU_VOICE (vd "Thiện Minh"); để trống = chỉ dùng Edge.
 const VIENEU_URL = process.env.VIENEU_URL || 'http://127.0.0.1:8000';
 const VIENEU_VOICE = process.env.VIENEU_VOICE ?? 'Adam bựa';
 const vieneuCache = new Map<string, Buffer>();
+// VieNeu chưa bật / đang nạp mô hình: lỗi 1 lần thì khỏi gọi lại trong 30 giây (đỡ chờ, đỡ rác log)
+let vieneuNghiDen = 0;
+let vieneuDaBao = false;
 async function vieneuTts(text: string, res: express.Response): Promise<boolean> {
+  if (Date.now() < vieneuNghiDen && !vieneuCache.has(text)) return false;
   const cached = vieneuCache.get(text);
   if (cached) {
     res.setHeader('Content-Type', 'audio/wav');
@@ -516,6 +522,10 @@ async function vieneuTts(text: string, res: express.Response): Promise<boolean> 
       res.write(b);
     }
     res.end();
+    if (vieneuDaBao) {
+      vieneuDaBao = false;
+      console.log('[Giọng] VieNeu đã chạy lại');
+    }
     vieneuCache.set(text, Buffer.concat(parts));
     if (vieneuCache.size > 100) vieneuCache.delete(vieneuCache.keys().next().value!);
     return true;
@@ -525,7 +535,11 @@ async function vieneuTts(text: string, res: express.Response): Promise<boolean> 
       res.end();
       return true;
     }
-    console.warn('[VieNeu lỗi, dùng giọng Edge]', err instanceof Error ? err.message : err);
+    vieneuNghiDen = Date.now() + 30_000;
+    if (!vieneuDaBao) {
+      vieneuDaBao = true;
+      console.warn(`[Giọng] VieNeu chưa trả lời ở ${VIENEU_URL} (${err instanceof Error ? err.message : err}). Tạm dùng giọng Edge, 30 giây thử lại VieNeu một lần.`);
+    }
     return false;
   }
 }
@@ -542,12 +556,24 @@ app.get('/api/tts', async (req, res) => {
     const key = `${rate}|${text}`;
     let audio = ttsCache.get(key);
     if (!audio) {
-      try {
-        audio = await edgeTts(text, rate);
-      } catch (err) {
-        console.warn('Edge TTS lỗi, chuyển Google:', err instanceof Error ? err.message : err);
-        audio = await googleTts(text);
-      }
+      if (Date.now() < edgeNghiDen) audio = await googleTts(text);
+      else
+        try {
+          audio = await edgeTts(text, rate);
+          if (edgeDaBao) {
+            edgeDaBao = false;
+            console.log('[Giọng] Edge đã chạy lại');
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          // 429 = Edge chặn tạm vì gọi dồn dập: nghỉ 60 giây, trong lúc đó dùng giọng Google
+          edgeNghiDen = Date.now() + (msg.includes('429') ? 60_000 : 15_000);
+          if (!edgeDaBao) {
+            edgeDaBao = true;
+            console.warn(`[Giọng] Edge lỗi (${msg}). Tạm dùng giọng Google ${msg.includes('429') ? 60 : 15} giây.`);
+          }
+          audio = await googleTts(text);
+        }
       ttsCache.set(key, audio);
       if (ttsCache.size > 200) ttsCache.delete(ttsCache.keys().next().value!);
     }
