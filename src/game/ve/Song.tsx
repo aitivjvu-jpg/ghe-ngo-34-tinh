@@ -47,8 +47,8 @@ export const NenSong = memo(function NenSong({ changId, nhanh, songHep }: { chan
         ))}
       </div>
       {/* khúc sông hẹp: bờ lấn vào */}
-      <div className="bo-lan absolute bottom-0 top-0 left-0" style={{ width: songHep ? 250 : 0, background: `linear-gradient(90deg, ${bo} 70%, ${c.bo[0]})` }} />
-      <div className="bo-lan absolute bottom-0 top-0 right-0" style={{ width: songHep ? 250 : 0, background: `linear-gradient(270deg, ${bo} 70%, ${c.bo[0]})` }} />
+      <div className="bo-lan absolute bottom-0 top-0 left-0" style={{ width: songHep ? 195 : 0, background: `linear-gradient(90deg, ${bo} 70%, ${c.bo[0]})` }} />
+      <div className="bo-lan absolute bottom-0 top-0 right-0" style={{ width: songHep ? 195 : 0, background: `linear-gradient(270deg, ${bo} 70%, ${c.bo[0]})` }} />
     </div>
   );
 });

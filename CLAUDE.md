@@ -37,4 +37,4 @@ Game đua ghe ngo cho TikTok LIVE: 34 tỉnh thành thi nhau, người xem gõ t
 - Tên game "Ghe Ngo 34 Tỉnh", không dùng tên "Ghe Rồng Ba Miền" (2026-11-16).
 - Làm giống cấu trúc game gốc, kể cả quà làm ghe tăng tốc (2026-11-16). Khác Ai Là Trạng Nguyên (ở đó quà không cho lợi thế).
 - Hình vẽ tạm bằng code, chủ kênh có thể thay ảnh tự vẽ sau (2026-11-16).
-- Nền sông 10 chặng dùng ảnh Gemini vẽ (2026-11-16): public/assets/song/<id chặng>.jpg, 1080x960, đã xoá dấu ngôi sao. Các tấm lật ngược xen kẽ để chỗ nối khớp. Giữ nguyên ảnh Vịnh Hạ Long dù có hàng dừa giữa biển (chủ kênh chọn).
+- Nền sông 10 chặng dùng ảnh Gemini vẽ (2026-11-16): public/assets/song/<id chặng>.jpg, 1080x960, đã xoá dấu ngôi sao. Các tấm lật ngược xen kẽ để chỗ nối khớp. Lòng sông ảnh gốc hẹp (300-500 px) nên đã nới mặt nước ra 170-910 px, giữ 170 px bờ sát nước mỗi bên; 6 làn ghe đặt trong khoảng đó (`LAN_X` trong GameStage.tsx). Ảnh gốc chưa nới: chưa lưu trong repo. Giữ nguyên ảnh Vịnh Hạ Long dù có hàng dừa giữa biển (chủ kênh chọn).

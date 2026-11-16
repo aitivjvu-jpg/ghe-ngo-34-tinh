@@ -12,10 +12,11 @@ import { saoText } from './chang';
 import { Ghe, VetNuoc } from './ve/Ghe';
 import { NenSong } from './ve/Song';
 
-const LAN_X = [150, 306, 462, 618, 774, 930]; // tâm 6 làn
+// tâm 6 làn: nằm gọn trong lòng sông (ảnh nền: bờ mỗi bên 170 px, nước 170-910)
+const LAN_X = [232, 355, 478, 601, 724, 847];
 const Y_DAU = 540; // mũi ghe dẫn đầu
 const TAM = 420; // ghe càng xa càng lùi xuống, tối đa chừng này px (nhãn vẫn ghi đúng số mét)
-const RONG = [54, 62, 68, 76]; // bề ngang ghe theo cấp
+const RONG = [48, 54, 60, 66]; // bề ngang ghe theo cấp
 
 const vien = (mau: string, d = 4) =>
   ({ textShadow: `0 ${d}px 0 #2a0d18, ${d}px 0 0 #2a0d18, -${d}px 0 0 #2a0d18, 0 -${d}px 0 #2a0d18, ${d}px ${d}px 0 #2a0d18, -${d}px ${d}px 0 #2a0d18, ${d}px -${d}px 0 #2a0d18, -${d}px -${d}px 0 #2a0d18, 0 ${d * 2}px 0 #0006`, color: mau }) as const;
@@ -50,7 +51,7 @@ export function GameStage({ game }: { game: GameState }) {
         const g = chinh.find((x) => x.tinh === h.tinh);
         if (!g) return null;
         return (
-          <div key={h.id} className="ho-che absolute whitespace-nowrap rounded-2xl bg-white px-4 py-1 text-[26px] font-extrabold text-[#2a0d18] shadow-lg" style={{ left: g.lan >= 3 ? LAN_X[g.lan] - 230 : LAN_X[g.lan] + 40, top: yMui(g, dau?.m ?? 0) + 120 }}>
+          <div key={h.id} className="ho-che absolute whitespace-nowrap rounded-2xl bg-white px-4 py-1 text-[26px] font-extrabold text-[#2a0d18] shadow-lg" style={{ left: g.lan >= 3 ? LAN_X[g.lan] - 200 : LAN_X[g.lan] + 34, top: yMui(g, dau?.m ?? 0) + 120 }}>
             {h.text}
           </div>
         );
@@ -259,8 +260,8 @@ function GheChinh({ g, dauM, nuocRut }: { g: GheView; dauM: number; nuocRut: boo
           {g.ngan}
           {g.sanNha ? ' 🏠' : ''}
         </div>
-        <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530ee] px-3 text-[22px] font-bold" style={{ borderColor: mau.vien }}>
-          {g.hang}. {g.ten} · 🛶{g.so}
+        <div className="mt-1 whitespace-nowrap rounded-full border-2 bg-[#0b2530ee] px-2 text-[19px] font-bold" style={{ borderColor: mau.vien }}>
+          {g.hang}. {g.ten} · {g.so}
         </div>
       </div>
     </div>
